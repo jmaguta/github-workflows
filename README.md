@@ -16,7 +16,14 @@ jobs:
 
 ### Semantic Release
 
+The caller workflow must declare the permissions that semantic-release needs:
+
 ```yaml
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
 jobs:
   release:
     uses: jmaguta/github-workflows/.github/workflows/terraform-release.yaml@main
