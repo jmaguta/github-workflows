@@ -1,0 +1,64 @@
+name: Terraform PR Checks (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      terraform_version:
+        description: "Terraform version constraint"
+        type: string
+        default: "~> 1.14"
+        required: false
+      working_directory:
+        description: "Directory containing Terraform files"
+        type: string
+        default: "."
+        required: false
+      checkov_soft_fail:
+        description: "If true, checkov findings are reported but don't fail the job"
+        type: boolean
+        default: true
+        required: false
+
+jobs:
+  terraform-fmt:
+    name: Terraform Format
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working_directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+      - name: Check formatting
+        run: terraform fmt -check -recursive
+
+  terraform-validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working_directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+      - name: Init (no backend)
+        run: terraform init -backend=false
+      - name: Validate
+        run: terraform validate
+
+  checkov:
+    name: Checkov Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ${{ inputs.working_directory }}
+          framework: terraform
+          soft_fail: ${{ inputs.checkov_soft_fail }}
+          output_format: cli
