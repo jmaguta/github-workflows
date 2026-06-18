@@ -23,6 +23,7 @@ jobs:
   terraform-fmt:
     name: Terraform Format
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: ${{ inputs.working_directory }}
@@ -37,6 +38,7 @@ jobs:
   terraform-validate:
     name: Terraform Validate
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: ${{ inputs.working_directory }}
@@ -53,6 +55,7 @@ jobs:
   checkov:
     name: Checkov Security Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Run Checkov
